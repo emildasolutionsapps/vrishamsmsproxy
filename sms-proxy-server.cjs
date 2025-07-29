@@ -49,7 +49,19 @@ try {
     console.log('🔧 Trying to initialize Firebase with service account file...');
     const serviceAccount = require('./serviceAccountKey.json');
     admin.initializeApp({
-      credential: admin.credential.cert(serviceAccount),
+      credential: admin.credential.cert({
+        type: "service_account",
+        project_id: "vrisham-cad24",
+        private_key_id: "cc5cf6ab9e69050ac368fd40d468ccdc73ec7ed2",
+        private_key: "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDIP0/dgl6/IE+5\nzu62edJTzFCkXyeUmg7gn3JDmOo/IUQ5r3JJu1BXOMBUUcHvGQgL0aNE5jehswvu\nHCv7yvWMNJ5XqoqmWtV3Ds04Y5Zf1yk5Pb/ggLe39+NUZUsaMmgK2GfCo77bCz4l\nGtbQCgT8UCtmq74TQCuS80KIegLLfTxSWXiJfzzN58LYgYmBOcfu+IaDw0395iNh\n3umhCerxaYDpAhthcYO0l3TWByig79Wa86W1zRAZ/tcs6ruBVwaFl2+yE/+Itc+F\nxuKvo6svHPT1dbXBfDzKXOKQMLXf/ZZraZJFWe82nYpBtiyvZL8OTXJlIby0lmhv\n1xKuK+t3AgMBAAECggEATxgi1Z2PCvMaSowf4deQaiUDnUkwexO22KZiHa0iqTjc\nl+RiwhjIjQsPfL6mWWiLsw9k6+v7AVWVWsGp5dSu1GhcOshT541tT497I9DCLqzv\nzXpEdcqhxnqVQlqYJYrPaak8orbGxgJU05ccTiQHABoyamVfuH7aNzr6hqmavQDR\ncbguLBXk3ql6BBu2Miux55Vgq/7YBa80SjeR94QCZY5JGkB1iyVgep3bbo86XQIr\n4Axg+gNjh59nvcr48HDMZcXdVwy+jBtmj4dD/1QM7mkYd8iN8wmj2ZIL31c6CLmS\njBd9In6S36OEGuj8NmrliY/taRDlD3Oa0zM9i8VNYQKBgQDsXDQecNL1UYajIfKZ\n31cIDu99lolTnQ2luW5cgBaqCfgW+aUEjlLfSbjp57h09swQnkPfSfPtkHUgOQVO\nGqCOzlTE+Xa5FPfri7WIH2n1hMa8Tscf3PFYMndBdvPHEffuQADyVLeJXG8S7nXx\n4lVkmP05+BRRTeGyxTEU7SirmQKBgQDY4uylgt2thTeZ2k0/NF7Nh6FPpJU38fjZ\nf2tY+v6WePNbBCzt4tCtUW4eQsHiwZKVKMB1XOlRlOHB5gEXSgQXkHic8iaV0SOM\nU6YTtYIoXAL2cSZZplyAmS8D13Es6VIwbj3ewiMB4w717TM5SLAO9Qgn4YIiZLOe\nekSrx5c5jwKBgF9p+UAwm3icqJVCJwUmu6NtJBC2rEkspU25RWvh6URLMfNUY+Eq\n8xlgUV1bRYMx/b7XpN6GpAnKvv17B0E4TohXkrDRY7PjWxGjHG0PAV8zcmaiBpA+\nSM8p0CqFMnOyNTvgaoFo4Y552fzydnpmu8IYYGD+XHVV0z6vi9i+xCRBAoGAbyUz\nYspCsfav/K8roPVElA0qdHcCZS4iectbhrjxmMkY5Q6pu6rdh8RQKz/Ivly2squ0\nnTBk/QLQAp7M9lNe73iA5uUNMv9/OR1w4W7F6crlVce8gHrJsrlNp6lTfVGAZgNI\nv4w7hm8Grq7E7lk6qB+X82AUYW27wr4jzOg2ri8CgYB2eddLTGI+ium53pta2FdW\nhI3uB2cp6L/fJxyvmIVvlAnnmaTmWY+kDvHiobXlA9dY7SoRN7GgSnbNNZoIiN/f\n0uNmEtiqXKQjkwLUNeLmMc6kp9XY+Z0InY0ZaedCdiPfoY65cMXhp8NBpsi2qBNK\n9FRsfuQowGqnkEp8zFP0EQ==\n-----END PRIVATE KEY-----\n",
+        client_email: "firebase-adminsdk-ucp2q@vrisham-cad24.iam.gserviceaccount.com",
+        client_id: "113767465011537940625",
+        auth_uri: "https://accounts.google.com/o/oauth2/auth",
+        token_uri: "https://oauth2.googleapis.com/token",
+        auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
+        client_x509_cert_url: "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-ucp2q%40vrisham-cad24.iam.gserviceaccount.com",
+        universe_domain: "googleapis.com"
+      }),
     });
     firebaseAdminInitialized = true;
     console.log('✅ Firebase Admin SDK initialized with service account file');
@@ -74,7 +86,7 @@ const otpStore = new Map();
 const rateLimitStore = new Map();
 
 // Enable CORS for all routes
-app.use(cors({origin: true, credentials: true }));
+app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 
 // Fast2SMS API key
@@ -211,9 +223,9 @@ app.post('/api/send-sms', async (req, res) => {
     const { phoneNumber, message } = req.body;
 
     if (!phoneNumber || !message) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Phone number and message are required' 
+      return res.status(400).json({
+        success: false,
+        error: 'Phone number and message are required'
       });
     }
 
@@ -228,9 +240,9 @@ app.post('/api/send-sms', async (req, res) => {
 
     // Validate 10-digit Indian number
     if (cleanNumber.length !== 10) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Invalid Indian phone number format' 
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid Indian phone number format'
       });
     }
 
@@ -271,7 +283,7 @@ app.post('/api/send-sms', async (req, res) => {
     const result = await response.json();
     console.log('📋 Fast2SMS Result:', result);
 
-    if (result.return === true) { 
+    if (result.return === true) {
       console.log('✅ SMS sent successfully!');
       res.json({
         success: true,
