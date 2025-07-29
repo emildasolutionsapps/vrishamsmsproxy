@@ -464,25 +464,46 @@ app.get('/api/debug/firebase', (req, res) => {
 
 
 
+// Get local IP address
+const os = require('os');
+function getLocalIP() {
+  const interfaces = os.networkInterfaces();
+  for (const name of Object.keys(interfaces)) {
+    for (const iface of interfaces[name]) {
+      if (iface.family === 'IPv4' && !iface.internal) {
+        return iface.address;
+      }
+    }
+  }
+  return '192.168.1.14'; // fallback
+}
+
+const localIP = getLocalIP();
+
 // Start server on all network interfaces
 app.listen(PORT, '0.0.0.0', () => {
   console.log('🚀 SMS Proxy Server started!');
   console.log(`📡 Server running on: http://localhost:${PORT}`);
   console.log(`📱 Android Emulator: http://10.0.2.2:${PORT}`);
-  console.log(`📱 Physical Device: http://192.168.1.10:${PORT}`);
+  console.log(`📱 Physical Device: http://${localIP}:${PORT}`);
   console.log(`🔑 Fast2SMS API Key: ${FAST2SMS_API_KEY.substring(0, 10)}...`);
   console.log('');
   console.log('Available endpoints:');
   console.log(`  POST http://localhost:${PORT}/api/send-otp (Web)`);
   console.log(`  POST http://10.0.2.2:${PORT}/api/send-otp (Emulator)`);
-  console.log(`  POST http://192.168.1.10:${PORT}/api/send-otp (Device)`);
-  console.log(`  GET  http://192.168.1.10:${PORT}/api/health`);
+  console.log(`  POST http://${localIP}:${PORT}/api/send-otp (Device)`);
+  console.log(`  GET  http://${localIP}:${PORT}/api/health`);
+  console.log(`  GET  http://${localIP}:${PORT}/api/debug/firebase`);
   console.log('');
   console.log('✅ Ready for both Android Emulator and Physical Device!');
   console.log('');
   console.log('🔥 IMPORTANT FOR PHYSICAL DEVICES:');
   console.log('   Make sure Windows Firewall allows port 3001');
   console.log('   Run: netsh advfirewall firewall add rule name="SMS Proxy" dir=in action=allow protocol=TCP localport=3001');
+  console.log('');
+  console.log('🔧 TROUBLESHOOTING:');
+  console.log(`   Test connectivity: http://${localIP}:${PORT}/api/health`);
+  console.log(`   Check Firebase: http://${localIP}:${PORT}/api/debug/firebase`);
 });
 
 module.exports = app;
