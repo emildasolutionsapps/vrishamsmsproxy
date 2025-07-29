@@ -446,10 +446,23 @@ app.get('/api/health', (req, res) => {
     features: {
       smsProxy: true,
       firebaseAuth: admin.apps.length > 0,
+      firebaseAdminInitialized: firebaseAdminInitialized,
       otpStorage: otpStore.size
     }
   });
 });
+
+// Debug endpoint to check Firebase status
+app.get('/api/debug/firebase', (req, res) => {
+  res.json({
+    firebaseAdminInitialized: firebaseAdminInitialized,
+    adminAppsLength: admin.apps.length,
+    hasDefaultApp: admin.apps.length > 0,
+    appName: admin.apps.length > 0 ? admin.apps[0].name : 'none'
+  });
+});
+
+
 
 // Start server on all network interfaces
 app.listen(PORT, '0.0.0.0', () => {
