@@ -3,6 +3,9 @@
  * Handles Fast2SMS OTP sending and Firebase custom token generation
  */
 
+// Load environment variables
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const admin = require('firebase-admin');
@@ -29,17 +32,39 @@ const PORT = 3001;
 // Initialize Firebase Admin SDK
 let firebaseAdminInitialized = false;
 try {
-  // Try to initialize with service account key
-  const serviceAccount = require('./serviceAccountKey.json');
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-  });
-  firebaseAdminInitialized = true;
-  console.log('✅ Firebase Admin SDK initialized with service account');
+  // Try to initialize with environment variables first (recommended for production)
+  if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_PRIVATE_KEY && process.env.FIREBASE_CLIENT_EMAIL) {
+    console.log('🔧 Initializing Firebase with environment variables...');
+    admin.initializeApp({
+      credential: admin.credential.cert({
+        projectId: process.env.FIREBASE_PROJECT_ID,
+        privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      }),
+    });
+    firebaseAdminInitialized = true;
+    console.log('✅ Firebase Admin SDK initialized with environment variables');
+  } else {
+    // Fallback to service account key file (for local development)
+    console.log('🔧 Trying to initialize Firebase with service account file...');
+    const serviceAccount = require('./serviceAccountKey.json');
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+    });
+    firebaseAdminInitialized = true;
+    console.log('✅ Firebase Admin SDK initialized with service account file');
+  }
 } catch (error) {
   console.error('❌ Firebase Admin SDK initialization failed:', error.message);
   console.log('⚠️  Firebase custom token generation will not work');
-  console.log('💡 Create serviceAccountKey.json from Firebase Console for full functionality');
+  console.log('');
+  console.log('💡 To fix this, choose one of these options:');
+  console.log('   1. Set environment variables (recommended for production):');
+  console.log('      - FIREBASE_PROJECT_ID=your-project-id');
+  console.log('      - FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\\n..."');
+  console.log('      - FIREBASE_CLIENT_EMAIL=firebase-adminsdk-...@your-project.iam.gserviceaccount.com');
+  console.log('   2. Create serviceAccountKey.json from Firebase Console (for local development)');
+  console.log('');
 }
 
 // In-memory OTP storage (in production, use Redis or database)
