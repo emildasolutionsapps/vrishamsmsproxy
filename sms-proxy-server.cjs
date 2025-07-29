@@ -47,7 +47,7 @@ try {
   } else {
     // Fallback to service account key file (for local development)
     console.log('🔧 Trying to initialize Firebase with service account file...');
-    const serviceAccount = require('./serviceAccountKey.json');
+    // const serviceAccount = require('./serviceAccountKey.json');
     admin.initializeApp({
       credential: admin.credential.cert({
         type: "service_account",
