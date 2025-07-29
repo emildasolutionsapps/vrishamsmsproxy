@@ -49,7 +49,7 @@ const otpStore = new Map();
 const rateLimitStore = new Map();
 
 // Enable CORS for all routes
-app.use(cors());
+app.use(cors({origin: true, credentials: true }));
 app.use(express.json());
 
 // Fast2SMS API key
